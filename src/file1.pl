@@ -2,7 +2,7 @@
 Jumlah pemain
 
 :- dynamic
-  pemain/1.
+  	pemain/1.
 	urutan/1.
 	hand/2. % menyimpan kartu yang dimiliki setiap pemain
 	discard_top/1.
