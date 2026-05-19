@@ -9,13 +9,26 @@
 :- dynamic(efek_pending/1).
 :- dynamic(pemain_wdf/1).
 :- dynamic(status_uni/1).
- 
-:- consult(fakta).      % Fakta dasar: warna, angka
-:- consult(utils).      % Utilitas list & tampilan
-:- consult(deck).       % Pembuatan & manajemen deck
-:- consult(giliran).    % Logika urutan & perpindahan giliran
-:- consult(validasi).   % Validasi kartu & efek kartu
-:- consult(aksi).       % Aksi utama & pendukung pemain
-:- consult(game).       % Inisialisasi & akhir permainan
+
+semua_warna([merah, kuning, hijau, biru]).
+semua_angka([0,1,2,3,4,5,6,7,8,9]).
+
+angka(0).
+angka(1).
+angka(2).
+angka(3).
+angka(4).
+angka(5).
+angka(6).
+angka(7).
+angka(8).
+angka(9).
+
+:- consult(utils).
+:- consult(deck).
+:- consult(giliran).
+:- consult(validasi).
+:- consult(aksi).
+:- consult(game).
 
 :- initialization(startGame).
