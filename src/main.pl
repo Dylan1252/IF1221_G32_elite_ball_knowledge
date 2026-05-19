@@ -1,46 +1,21 @@
-:- consult('fakta.pl').
-:- consult('util.pl').
-:- consult('deck.pl').
-:- consult('turn.pl').
-:- consult('aksi.pl').
-:- consult('support.pl').
-:- consult('endgame.pl').
+:- dynamic(pemain/1).
+:- dynamic(urutan_pemain/1).
+:- dynamic(kartu_di_tangan/2).
+:- dynamic(discard_top/1).
+:- dynamic(giliran_sekarang/1).
+:- dynamic(deck_kartu/1).
+:- dynamic(arah_giliran/1).
+:- dynamic(warna_aktif/1).
+:- dynamic(efek_pending/1).
+:- dynamic(pemain_wdf/1).
+:- dynamic(status_uni/1).
+ 
+:- consult(fakta).      % Fakta dasar: warna, angka
+:- consult(utils).      % Utilitas list & tampilan
+:- consult(deck).       % Pembuatan & manajemen deck
+:- consult(giliran).    % Logika urutan & perpindahan giliran
+:- consult(validasi).   % Validasi kartu & efek kartu
+:- consult(aksi).       % Aksi utama & pendukung pemain
+:- consult(game).       % Inisialisasi & akhir permainan
 
 :- initialization(startGame).
-
-startGame :-
-    hapus_data,
-
-    input_jumlah(Jumlah),
-    input_pemain(1, Jumlah, ListPemain),
-    acak_pemain(ListPemain, UrutanAcak), nl,
-
-    write('Setiap pemain mendapatkan 7 kartu acak.'), nl,
-
-    buat_deck(DeckAsli),
-    acak_deck(DeckAsli, DeckAcak),
-    bagi_kartu(UrutanAcak, DeckAcak, SisaDeckSetelahBagikan),
-
-    init_discard_pile(
-        SisaDeckSetelahBagikan,
-        KartuAwal,
-        SisaDeckFinal
-    ),
-
-    assertz(discard_top(KartuAwal)),
-    assertz(deck_kartu(SisaDeckFinal)),
-    assertz(arah_giliran(kanan)),
-
-    KartuAwal = kartu(WarnaAwal, _),
-    assertz(warna_aktif(WarnaAwal)),
-
-    UrutanAcak = [PemainPertama|_],
-    assertz(giliran_sekarang(PemainPertama)), nl,
-
-    write('Kartu discard top: '),
-    tulis_kartu(KartuAwal),
-    write('.'), nl,
-
-    write('Giliran '),
-    write(PemainPertama),
-    write('.'), nl.
