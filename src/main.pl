@@ -1,17 +1,34 @@
-startGame :-
-	hapus_data,
+:- dynamic(pemain/1).
+:- dynamic(urutan_pemain/1).
+:- dynamic(kartu_di_tangan/2).
+:- dynamic(discard_top/1).
+:- dynamic(giliran_sekarang/1).
+:- dynamic(deck_kartu/1).
+:- dynamic(arah_giliran/1).
+:- dynamic(warna_aktif/1).
+:- dynamic(efek_pending/1).
+:- dynamic(pemain_wdf/1).
+:- dynamic(status_uni/1).
 
-	write('Masukkan jumlah pemain: '),
-	read(Jumlah),
-	validasi(Jumlah),
+semua_warna([merah, kuning, hijau, biru]).
+semua_angka([0,1,2,3,4,5,6,7,8,9]).
 
-	input_pemain(1, Jumlah, DaftarPemain),
+angka(0).
+angka(1).
+angka(2).
+angka(3).
+angka(4).
+angka(5).
+angka(6).
+angka(7).
+angka(8).
+angka(9).
 
-	random_permutation(DaftarPemain, UrutanAcak),
-	assertz(urutan(UrutanAcak)),
+:- consult(utils).
+:- consult(deck).
+:- consult(giliran).
+:- consult(validasi).
+:- consult(aksi).
+:- consult(game).
 
-	write(‘Urutan pemain: ’), tampilkan_urutan(UrutanAcak), nl,
-
-	write(‘Setiap pemain mendapatkan 7 kartu acak.’),
-
-	write(‘Kartu discard top: ’), 
+:- initialization(startGame).
