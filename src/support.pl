@@ -1,45 +1,46 @@
-% ----- Navigasi Circular -----
+% ============================================================
+% Utilitas List & Tampilan
+% ============================================================
  
-next_circular(X, List, Next) :-
-    ( append(_, [X, Next|_], List) -> true
-    ; (last(List, X), List = [Next|_])
-    ).
+% ----- Tampilan List -----
  
-prev_circular(X, List, Prev) :-
-    reverse(List, Rev),
-    next_circular(X, Rev, Prev).
+tampilkan_list([]) :- nl.
+tampilkan_list([H]) :- write(H), nl.
+tampilkan_list([H|T]) :-
+    write(H), write(' - '),
+    tampilkan_list(T).
  
-% ----- Pemain Berikutnya -----
+% ----- Operasi List -----
  
-pemain_berikutnya(Berikutnya) :-
-    giliran_sekarang(Sekarang),
-    urutan_pemain(Urutan),
-    arah_giliran(Arah),
-    ( Arah = kanan
-        ->  next_circular(Sekarang, Urutan, Berikutnya)
-        ;   prev_circular(Sekarang, Urutan, Berikutnya)
-    ).
+% Ambil elemen ke-N, kembalikan sisa list
+ambil_ke(1, [H|T], H, T) :- !.
+ambil_ke(N, [H|T], X, [H|Sisa]) :-
+    N > 1,
+    N1 is N - 1,
+    ambil_ke(N1, T, X, Sisa).
  
-% ----- Perpindahan Giliran -----
+% Akses elemen ke-N tanpa mengubah list
+nth_element(1, [H|_], H) :- !.
+nth_element(N, [_|T], X) :-
+    N > 1,
+    N1 is N - 1,
+    nth_element(N1, T, X).
  
-pindah_giliran :-
-    giliran_sekarang(Sekarang),
-    pemain_berikutnya(Berikutnya),
-    retract(giliran_sekarang(Sekarang)),
-    assertz(giliran_sekarang(Berikutnya)),
-    write('Giliran '), write(Berikutnya), write('.'), nl.
+% Hapus elemen ke-N dari list
+hapus_ke_n(1, [_|T], T) :- !.
+hapus_ke_n(N, [H|T], [H|Sisa]) :-
+    N > 1,
+    N1 is N - 1,
+    hapus_ke_n(N1, T, Sisa).
  
-% Lewati satu pemain (efek skip / draw_two)
-pindah_giliran_skip :-
-    giliran_sekarang(Sekarang),
-    pemain_berikutnya(Dilewati),
-    urutan_pemain(Urutan),
-    arah_giliran(Arah),
-    ( Arah = kanan
-        ->  next_circular(Dilewati, Urutan, Berikutnya)
-        ;   prev_circular(Dilewati, Urutan, Berikutnya)
-    ),
-    retract(giliran_sekarang(Sekarang)),
-    assertz(giliran_sekarang(Berikutnya)),
-    write('Pemain berikutnya kehilangan giliran.'), nl,
-    write('Giliran '), write(Berikutnya), write('.'), nl.
+% ----- Tampilan Kartu -----
+ 
+tulis_kartu(kartu(Warna, Jenis)) :-
+    write(Warna), write('-'), write(Jenis).
+ 
+tampilkan_kartu_bernomor([], _).
+tampilkan_kartu_bernomor([K|T], N) :-
+    format('~w. ', [N]),
+    tulis_kartu(K), nl,
+    N1 is N + 1,
+    tampilkan_kartu_bernomor(T, N1).
