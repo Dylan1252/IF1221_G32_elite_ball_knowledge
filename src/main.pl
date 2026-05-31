@@ -24,12 +24,12 @@ angka(7).
 angka(8).
 angka(9).
 
-:- consult('utilitas.pl').
-:- consult('deck.pl').
-:- consult('giliran.pl').
-:- consult('validasi.pl').
-:- consult('aksi.pl').
-:- consult('game.pl').
-:- consult('save_load.pl')
+:- include('utilitas.pl').
+:- include('deck.pl').
+:- include('giliran.pl').
+:- include('validasi.pl').
+:- include('aksi.pl').
+:- include('game.pl').
+:- include('save_load.pl').
 
 :- initialization(startGame).
