@@ -32,4 +32,4 @@ angka(9).
 :- include('game.pl').
 :- include('save_load.pl').
 
-:- initialization(startGame).
+%:- initialization(startGame).
