@@ -30,5 +30,6 @@ angka(9).
 :- consult('validasi.pl').
 :- consult('aksi.pl').
 :- consult('game.pl').
+:- consult('save_load.pl')
 
 :- initialization(startGame).
