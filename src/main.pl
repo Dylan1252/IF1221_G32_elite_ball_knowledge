@@ -24,11 +24,11 @@ angka(7).
 angka(8).
 angka(9).
 
-:- consult(utils).
-:- consult(deck).
-:- consult(giliran).
-:- consult(validasi).
-:- consult(aksi).
-:- consult(game).
+:- consult('utilitas.pl').
+:- consult('deck.pl').
+:- consult('giliran.pl').
+:- consult('validasi.pl').
+:- consult('aksi.pl').
+:- consult('game.pl').
 
 :- initialization(startGame).
