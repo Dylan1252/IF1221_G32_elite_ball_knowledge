@@ -53,43 +53,51 @@ saveGame :-
 simpan_ke_stream(Stream) :-
     % Tulis urutan pemain
     urutan_pemain(Urutan),
-    write(Stream, 'urutan_pemain:['),
-    tulis_list_pemain_file(Stream, Urutan),
-    write(Stream, ']'), nl(Stream),
+    write(Stream, 'urutan_pemain('),
+    write(Stream, Urutan),
+    write(Stream, ').'), nl(Stream),
 
     % Tulis giliran sekarang
     giliran_sekarang(Giliran),
-    write(Stream, 'giliran:'),
-    write(Stream, Giliran), nl(Stream),
+    write(Stream, 'giliran('),
+    write(Stream, Giliran),
+    write(Stream, ').'), nl(Stream),
 
     % Tulis discard top
-    discard_top(kartu(WD, JD)),
-    write(Stream, 'discard_top:'),
-    write(Stream, WD), write(Stream, '-'), write(Stream, JD), nl(Stream),
+    discard_top(KartuDiscard),
+    write(Stream, 'discard_top('),
+    write(Stream, KartuDiscard),
+    write(Stream, ').'), nl(Stream),
 
-    % Tulis kartu setiap pemain
+    % Simpan kartu semua pemain
     simpan_kartu_semua_pemain(Stream, Urutan),
 
     % Tulis arah permainan
     arah_giliran(Arah),
-    write(Stream, 'arah_permainan:'), write(Stream, Arah), nl(Stream),
+    write(Stream, 'arah_permainan('),
+    write(Stream, Arah),
+    write(Stream, ').'), nl(Stream),
 
     % Tulis warna aktif
     warna_aktif(WA),
-    write(Stream, 'warna_aktif:'), write(Stream, WA), nl(Stream),
+    write(Stream, 'warna_aktif('),
+    write(Stream, WA),
+    write(Stream, ').'), nl(Stream),
 
     % Tulis status UNI
     kumpulkan_status_uni(Urutan, UniList),
-    write(Stream, 'status_UNI:['),
-    tulis_list_pemain_file(Stream, UniList),
-    write(Stream, ']'), nl(Stream).
+    write(Stream, 'status_UNI('),
+    write(Stream, UniList),
+    write(Stream, ').'), nl(Stream).
 
 simpan_kartu_semua_pemain(_, []).
 simpan_kartu_semua_pemain(Stream, [P|Rest]) :-
     kartu_di_tangan(P, Kartu),
-    write(Stream, 'kartu_'), write(Stream, P), write(Stream, ':['),
-    tulis_list_kartu_file(Stream, Kartu),
-    write(Stream, ']'), nl(Stream),
+    write(Stream, 'kartu('),
+    write(Stream, P),
+    write(Stream, ','),
+    write(Stream, Kartu),
+    write(Stream, ').'), nl(Stream),
     simpan_kartu_semua_pemain(Stream, Rest).
 
 % ============================================================
@@ -100,13 +108,17 @@ loadGame :-
     write('Masukkan nama file yang akan dimuat: '),
     read(NamaFile),
     atom_concat(NamaFile, '.txt', NamaFileTxt),
-    ( exists_file(NamaFileTxt)
-        ->  hapus_data,
+
+    ( catch(open(NamaFileTxt, read, Stream), _, fail)
+        ->
+            close(Stream),
+            hapus_data,
             muat_dari_file(NamaFileTxt),
             giliran_sekarang(Giliran),
             format('Status permainan berhasil dimuat dari ~w.~n', [NamaFileTxt]),
             format('Melanjutkan giliran ~w.~n', [Giliran])
-        ;   format('File ~w tidak ditemukan.~n', [NamaFileTxt])
+        ;
+            format('File ~w tidak ditemukan.~n', [NamaFileTxt])
     ).
 
 muat_dari_file(NamaFile) :-
@@ -125,80 +137,47 @@ baca_semua_baris(Stream, [Baris|Rest]) :-
 %  PARSING BARIS FILE
 % ============================================================
 
+% ============================================================
+%  PARSING BARIS FILE
+% ============================================================
+
 proses_semua_baris([]).
 proses_semua_baris([Baris|Rest]) :-
     ( proses_baris(Baris) -> true ; true ),
     proses_semua_baris(Rest).
 
-% Format term: urutan_pemain:[p1,p2,...]
-proses_baris(urutan_pemain:ListAtom) :-
+proses_baris(urutan_pemain(ListPemain)) :-
     !,
-    konversi_list_atom_ke_pemain(ListAtom, ListPemain),
     assertz(urutan_pemain(ListPemain)).
 
-% Format term: giliran:nama
-proses_baris(giliran:Nama) :-
+proses_baris(giliran(Nama)) :-
     !,
     assertz(giliran_sekarang(Nama)).
 
-% Format term: discard_top:warna-jenis
-proses_baris(discard_top:WJ) :-
+proses_baris(discard_top(Kartu)) :-
     !,
-    parse_kartu_atom(WJ, Kartu),
     assertz(discard_top(Kartu)).
 
-% Format term: arah_permainan:arah
-proses_baris(arah_permainan:Arah) :-
+proses_baris(arah_permainan(Arah)) :-
     !,
     assertz(arah_giliran(Arah)).
 
-% Format term: warna_aktif:warna
-proses_baris(warna_aktif:Warna) :-
+proses_baris(warna_aktif(Warna)) :-
     !,
     assertz(warna_aktif(Warna)).
 
-% Format term: status_UNI:[p1,p2,...]
-proses_baris(status_UNI:ListAtom) :-
+proses_baris(status_UNI(ListUNI)) :-
     !,
-    konversi_list_atom_ke_pemain(ListAtom, ListUNI),
     assertz_status_uni(ListUNI).
 
-% Format term: kartu_NamaPemain:[kartu1,kartu2,...]
-proses_baris(Term) :-
-    Term =.. [KunciKartu, ListKartuAtom],
-    atom_concat('kartu_', NamaPemain, KunciKartu),
+proses_baris(kartu(Pemain, ListKartu)) :-
     !,
-    konversi_list_atom_ke_kartu(ListKartuAtom, ListKartu),
-    assertz(kartu_di_tangan(NamaPemain, ListKartu)).
+    assertz(kartu_di_tangan(Pemain, ListKartu)).
 
 assertz_status_uni([]).
 assertz_status_uni([P|Rest]) :-
     assertz(status_uni(P)),
     assertz_status_uni(Rest).
-
-% ============================================================
-%  KONVERSI LIST ATOM (dari notasi [...])
-% ============================================================
-
-% List Prolog sudah otomatis di-parse oleh read_term sebagai list
-konversi_list_atom_ke_pemain([], []).
-konversi_list_atom_ke_pemain([H|T], [H|Rest]) :-
-    konversi_list_atom_ke_pemain(T, Rest).
-
-konversi_list_atom_ke_kartu([], []).
-konversi_list_atom_ke_kartu([KartuAtom|T], [Kartu|Rest]) :-
-    parse_kartu_atom(KartuAtom, Kartu),
-    konversi_list_atom_ke_kartu(T, Rest).
-
-% Parse atom seperti 'merah-5', 'hitam-wild_draw_four', dst.
-parse_kartu_atom(Atom, kartu(Warna, Jenis)) :-
-    atom_string(Atom, Str),
-    split_string(Str, "-", "", Parts),
-    Parts = [WStr | JenisParts],
-    atomic_list_concat(JenisParts, '-', JenisAtom),
-    atom_string(Warna, WStr),
-    atom_string(Jenis, JenisAtom).
-
 % ============================================================
 %  HAPUS DATA (untuk reset state sebelum load)
 % ============================================================
